@@ -1,4 +1,3 @@
-
 <template>
   <div class="header">
     <div class="wrapper">
@@ -29,7 +28,7 @@ export default {
     display: flex;
     align-items: center;
     height: 50px;
-    font-size: $fontE;
+    font-size: $fontG;
     padding: 0 20px;
   }
   .icon {

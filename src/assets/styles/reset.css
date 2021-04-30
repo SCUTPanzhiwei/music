@@ -218,3 +218,7 @@ a {
     color: #25a4bb;
     text-decoration: none;
 }
+
+html {
+    font-size: 13.3333333333333vw
+}
