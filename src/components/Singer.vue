@@ -1,6 +1,6 @@
 <template>
-  <div class="singer">
-    <div class="label">
+  <div class="singer" ref="singer">
+    <div class="label" ref="label">
       <div class="category">
         <button
           v-for="(item, index) in sex"
@@ -37,12 +37,17 @@
     <Scroll class="singersList" :data="singers" ref="singersList">
       <ul class="list" ref="list">
         <li
-          class="singer-list"
+          ref="item"
+          class="item"
           v-for="singer in singers"
           :key="singer.id"
-          @click="_goToPageDetail(singer,'singerDetail', { id: singer.id })"
+          @click="_goToPageDetail(singer, 'singerDetail', { id: singer.id })"
         >
-          <img v-lazy="`${singer.img1v1Url}?param=50y50`" alt="" />
+          <img
+            @load="_imageLoad"
+            v-lazy="`${singer.img1v1Url}?param=50y50`"
+            alt=""
+          />
           <span class="singer-name">{{ singer.name }}</span>
         </li>
       </ul>
@@ -57,7 +62,6 @@
 import Scroll from "./scroll/Scroll";
 import Loading from "./loading/Loading";
 import { goToPage } from "../api/goToPage";
-import {mapMutations} from 'vuex'
 export default {
   components: { Scroll, Loading },
   data() {
@@ -108,10 +112,6 @@ export default {
   },
   // 监听singers变化，一旦singers数量发生变化则重新刷新scroll，从而重新计算高度,利用watch适用于异步操作
   watch: {
-    singers: function () {
-      this.$refs.list.style.height = this.singers.length * 63.5 + "px";
-      this.$refs.singersList.refresh();
-    },
     // 深度监听 params参数变化，当变化时重新拉取歌手数据
     params: {
       deep: true,
@@ -134,6 +134,9 @@ export default {
   },
 
   methods: {
+    _imageLoad() {
+      this.$refs.singersList.refresh();
+    },
     // 拉取歌手信息
     _getSingerList() {
       this.axios
@@ -196,14 +199,9 @@ export default {
       this.clickStatus.initial = cha;
     },
     // 去歌手详情页面
-    _goToPageDetail(singer,name, params, obj = this.$router) {
+    _goToPageDetail(singer, name, params, obj = this.$router) {
       goToPage(name, params, obj);
-      this.setSinger(singer)
     },
-    // 存入vuex
-    ...mapMutations({
-      setSinger: 'SET_SINGER'
-    })
   },
 };
 </script>
@@ -211,37 +209,43 @@ export default {
 <style lang="scss">
 .singer {
   position: fixed;
-  top: 80px;
   bottom: 0;
   width: 100%;
-  .character {
+  height: 100%;
+  .label {
+    position: absolute;
+    top: 80px;
     width: 100%;
-    overflow: hidden;
-  }
-  .category {
-    overflow: hidden;
-    button {
-      font-size: 12px;
-      border-radius: 35%;
-      width: 40px;
-      height: 20px;
-      line-height: 20 px;
-      float: left;
-      margin: 5px;
+    height: 90px;
+    .character {
+      width: 100%;
+      overflow: hidden;
     }
-    .checked {
-      background: #ff6600;
-      opacity: 0.6;
-      font-size: 14px;
-      font-weight: bold;
+    .category {
+      box-sizing: border-box;
+      overflow: hidden;
+      width: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      button {
+        font-size: 10px;
+        border-radius: 20px;
+        width: 40px;
+        height: 20px;
+        line-height: 20px;
+        margin: 5px;
+        background: none;
+      }
+      .checked {
+        border: 1px solid #ff6600;
+        font-size: 13px;
+      }
     }
   }
   .singersList {
-    // 父容器 其高度需要固定
     position: absolute;
-    top: 100px;
+    top: 170px;
     bottom: 0;
-    height: 490px;
     width: 100%;
     overflow: hidden;
     // list为子容器 其高度计算应包括所有数据
@@ -249,7 +253,9 @@ export default {
       width: 100%;
       display: flex;
       flex-direction: column;
-      .singer-list {
+      box-sizing: border-box;
+      .item {
+        box-sizing: border-box;
         height: 62.5px;
         border-bottom: 1px solid #f3f3f3;
         display: flex;
@@ -270,7 +276,7 @@ export default {
   .loading-container {
     width: 100%;
     position: absolute;
-    top: 120px;
+    top: 200px;
     left: 50%;
     transform: translateX(-50%);
   }

@@ -83,7 +83,6 @@ export default {
       if (!this.checkLoaded) {
         this.$refs.scroll.refresh();
         this.checkLoaded = true;
-        console.log("1");
       }
     },
   },
@@ -96,14 +95,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.icon {
-  width: 1.2em;
-  height: 1.2em;
-  vertical-align: -0.15em;
-  fill: currentColor;
-  overflow: hidden;
-  justify-content: space-between;
-}
 .wrapper {
   position: absolute;
   top: 80px;
@@ -117,8 +108,6 @@ export default {
     width: 100%;
   }
   .recommend {
-    .banner {
-    }
     .list-wrapper {
       h1 {
         height: 40px;
