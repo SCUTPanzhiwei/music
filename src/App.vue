@@ -1,8 +1,17 @@
 <template>
   <div id="app">
     <router-view></router-view>
+    <Player></Player>
   </div>
 </template>
+<script>
+import Player from "./components/Player";
+export default {
+  components: {
+    Player,
+  },
+};
+</script>
 
 <style lang="scss">
 .icon {

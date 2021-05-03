@@ -3,7 +3,7 @@ export default class Song {
     this.id = id //歌曲id
     this.singer =singer // 歌曲作者
     this.songName = songName // 歌曲名称
-    this.album = album //专辑
+    this.album = album //专辑名称
     this.duration = duration //时长 毫秒
     this.img = img // 歌曲封面
     this.url = url // 

@@ -25,6 +25,7 @@ export default {
 @import "@/assets/styles/config.scss";
 .header {
   height: 50px;
+  line-height: 50px;
   .wrapper {
     display: flex;
     align-items: center;

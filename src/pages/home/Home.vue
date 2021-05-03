@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import MyNav from '../../components/MyNav'
+import MyNav from '../../components/nav/MyNav'
 export default {
   name: 'Home',
   components: {

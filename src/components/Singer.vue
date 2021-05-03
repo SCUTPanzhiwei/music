@@ -8,7 +8,7 @@
           @click="_changeSex(index)"
           :class="{ checked: index == clickStatus.type }"
         >
-          {{ item }}
+          {{ index }}
         </button>
       </div>
       <div class="category">
@@ -18,7 +18,7 @@
           @click="_changeArea(index)"
           :class="{ checked: index == clickStatus.area }"
         >
-          {{ item }}
+          {{ index}}
         </button>
       </div>
       <Scroll :scrollX="true" :data="character" class="character">
@@ -62,50 +62,27 @@
 import Scroll from "./scroll/Scroll";
 import Loading from "./loading/Loading";
 import { goToPage } from "../api/goToPage";
+import {area,type,initial} from '../common/js/config'
+
+const AREA = area
+const TYPE = type
+const INITIAL = initial
 export default {
   components: { Scroll, Loading },
   data() {
     return {
-      character: [
-        "热门",
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z",
-      ],
-      area: ["全部", "华语", "欧美", "日本", "韩国", "其他"],
-      sex: ["全部", "男", "女", "乐队"],
+      character: INITIAL,
+      area: AREA,
+      sex: TYPE,
       singers: [],
       params: {
-        type: "-1", // 性别或乐队
+        type: "-1", // 
         area: "-1", //
         initial: "-1",
       },
       clickStatus: {
-        type: 0,
-        area: 0,
+        type: '全部',
+        area: '全部',
         initial: 0,
       },
     };
@@ -154,47 +131,17 @@ export default {
     },
     // 改变地区 传的index
     _changeArea(area) {
-      let area_cache = [-1, 7, 96, 8, 16, 0];
-      this.params.area = area_cache[area];
+      this.params.area = AREA[area];
       this.clickStatus.area = area;
     },
     // 改变性别 传的index
     _changeSex(sex) {
-      let sex_cache = [-1, 1, 2, 3];
-      this.params.type = sex_cache[sex];
+      this.params.type = TYPE[sex];
       this.clickStatus.type = sex;
     },
-    // 改变排序 A、B、C
+    // 改变s首字母 A、B、C
     _changeCharacter(cha) {
-      let cha_cache = [
-        "热门",
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z",
-      ];
+      let cha_cache = INITIAL
       this.params.initial = cha_cache[cha];
       this.clickStatus.initial = cha;
     },

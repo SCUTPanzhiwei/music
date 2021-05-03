@@ -1,14 +1,14 @@
 <template>
   <div class="list">
     <ul>
-      <li class="title">
+      <li class="title" @click="selectAllItem(songs)">
         <svg aria-hidden="true" class="icon">
           <use xlink:href="#icon-bofang"></use>
         </svg>
         <h3>播放全部</h3>
         <p>(共{{ songsTotalNum }}首)</p>
       </li>
-      <li class="item" v-for="(song, index) in songs" :key="song.id">
+      <li class="item" v-for="(song, index) in songs" :key="song.id" @click="selectItem(song,index)">
         <div class="content-left">{{ index + 1 }}</div>
         <div class="content-right">
           <h2 class="song-name">{{ song.songName }}</h2>
@@ -33,6 +33,15 @@ export default {
       default: [],
     },
   },
+  methods:{
+    // 点击歌曲时向外触发事件，由父组件进行处理
+    selectItem(song,index){
+      this.$emit('select',song,index)
+    },
+    selectAllItem(songs){
+      this.$emit('selectAll',songs)
+    }
+  }
 };
 </script>
 
@@ -45,6 +54,7 @@ export default {
     height: 60px;
     border-bottom: 1px solid #f3f3f3;
     h3 {
+      font-size: 19px;
       margin: 0 10px;
     }
     .icon {
