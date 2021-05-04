@@ -1,5 +1,5 @@
 <template>
-  <div class="player" v-show="playList.length > 0">
+  <div class="player">
     <transition class="normal">
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
@@ -30,6 +30,19 @@
           </div>
         </div>
         <div class="bottom">
+          <!-- 进度条与时间 -->
+          <div class="progress-wrapper">
+            <span class="time time-l">{{ formatSecond(currentTime) }}</span>
+            <div class="progress-bar-wrapper">
+              <!--进度条组件  -->
+              <play-bar :percent="progress" @progressChange="progressChange" @click="progressChange">
+              </play-bar>
+            </div>
+            <span class="time time-r">{{
+              formatMSecond(currentSong.duration)
+            }}</span>
+          </div>
+          <div class="operators"></div>
           <div class="icon-wrapper">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-xunhuan"></use>
@@ -55,10 +68,13 @@
     <transition class="mini">
       <div class="micro-player" v-show="!fullScreen" @click="showNormalPlayer">
         <div class="album-img-mini">
-          <img :src="currentSong.img" :class="rotate" />
+          <img 
+          v-if="playList.length==0"
+          src="https://imgsrc.baidu.com/forum/pic/item/bba1cd11728b471035abf958c9cec3fdfd032399.jpg"/>
+          <img :src="currentSong.img" :class="rotate"  v-else/>
         </div>
         <div class="play-song-mini">
-          <span class="song-name" v-html="currentSong.songName"></span>
+          <span class="song-name" v-html="playList.length?currentSong.songName:'欢迎使用网易云音乐'"></span>
           <span class="song-singer" v-html="currentSong.singer"></span>
         </div>
         <div class="play-icon-mini">
@@ -73,17 +89,28 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
+    <audio
+      :src="currentSong.url"
+      ref="audio"
+      @canplay="ready"
+      @error="error"
+      @timeupdate="updateTime"
+    ></audio>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from "vuex";
+import PlayBar from "./PlayBar.vue";
 export default {
   data() {
     return {
-      songReady: false
-    }
+      songReady: false, // audio资源可用性标志位
+      currentTime: 0,
+    };
+  },
+  components: {
+    PlayBar,
   },
   watch: {
     // 监听currentSong
@@ -112,6 +139,10 @@ export default {
       "playingState",
       "currentIndex",
     ]),
+    // 计算得到播放进度，并传值给子组件
+    progress() {
+      return this.currentTime / (this.currentSong.duration / 1000);
+    },
     // 动态添加属性
     playIcon() {
       return this.playingState ? "icon-suspend" : "icon-bofang";
@@ -122,11 +153,46 @@ export default {
     },
   },
   methods: {
+    // 响应播放器进度条拖动
+    progressChange(percent) {
+      // 设置audio的当前播放时间
+      this.$refs.audio.currentTime =
+        (this.currentSong.duration / 1000) * percent;
+      // 如果拖动时未播放，拖动完毕后播放
+      if (!this.playingState) {
+        this.togglePlaying();
+      }
+    },
+    // 获取当前播放时间，利用audio的派发函数实现，得到时间戳形式的时间数据
+    updateTime(e) {
+      this.currentTime = e.target.currentTime;
+    },
+    formatSecond(interval) {
+      interval = interval | 0;
+      const minute = (interval / 60) | 0;
+      const second = interval % 60;
+      return `${this._pad(minute)}:${this._pad(second)}`;
+    },
+    formatMSecond(interval) {
+      interval = (interval / 1000) | 0;
+      const minute = (interval / 60) | 0;
+      const second = interval % 60;
+      return `${this._pad(minute)}:${this._pad(second)}`;
+    },
+    _pad(num, n = 2) {
+      let len = num.toString().length;
+      while (len < n) {
+        num = "0" + num;
+        len++;
+      }
+      return num;
+    },
     error() {
-
+      this.songReady = true;
+      alert("播放错误");
     },
     ready() {
-      this.songReady = true
+      this.songReady = true;
     },
     // 显示整个播放页面
     showNormalPlayer() {
@@ -143,28 +209,28 @@ export default {
         index = this.playList.length - 1;
       }
       this.setCurrentIndex(index - 1);
-      if(!this.playingState) {
-        this.togglePlaying()
+      if (!this.playingState) {
+        this.togglePlaying();
       }
     },
     // 切换下一曲
     next() {
-      if(!this.songReady) {
-        return
+      if (!this.songReady) {
+        return;
       }
       let index = this.currentIndex;
       if (index == this.playList.length - 1) {
         index = 0;
       }
       this.setCurrentIndex(index + 1);
-      if(!this.playingState) {
-        this.togglePlaying()
+      if (!this.playingState) {
+        this.togglePlaying();
       }
     },
     //歌曲播放与暂停切换
     togglePlaying() {
-      if(!this.songReady) {
-        return
+      if (!this.songReady) {
+        return;
       }
       // 1、改变vuex中播放状态 2、监听状态的变化再改变播放器
       console.log("点击");
@@ -196,7 +262,7 @@ export default {
     right: 0;
     left: 0;
     bottom: 0;
-    background: grey;
+    background: black;
     .background {
       position: absolute;
       top: 0;
@@ -228,12 +294,13 @@ export default {
           font-size: 16px;
           height: 25px;
           line-height: 25px;
+          color: #f1f1f1;
         }
         .songAuthor {
           font-size: 14px;
           height: 20px;
           line-height: 20px;
-          color: #f1f1f1;
+          color: #080202;
         }
       }
     }
@@ -256,7 +323,7 @@ export default {
           // 动态添加旋转效果
           &.play {
             animation: rotate 20s linear infinite;
-            animation-fill-mode:forwards;
+            animation-fill-mode: forwards;
           }
           &.pause {
             animation-play-state: paused;
@@ -274,6 +341,27 @@ export default {
       width: 100%;
       bottom: 0;
       top: 472px;
+      .progress-wrapper {
+        position: absolute;
+        top: 100px;
+        right: 0;
+        left: 0;
+        font-size: 16px;
+        color: #f1f1f1;
+        display: flex;
+        align-items: center;
+        .time-l {
+          flex: 1;
+          text-align: center;
+        }
+        .time-r {
+          flex: 1;
+          text-align: center;
+        }
+        .progress-bar-wrapper {
+          flex: 4;
+        }
+      }
       .icon-wrapper {
         position: absolute;
         bottom: 10px;

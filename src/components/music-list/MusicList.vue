@@ -154,7 +154,7 @@ export default {
   .song-list {
     position: fixed;
     top: 0;
-    bottom: 0;
+    bottom: 67px;
     width: 100%;
   }
   .bg-layer {

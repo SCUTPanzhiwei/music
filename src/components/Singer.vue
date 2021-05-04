@@ -192,7 +192,7 @@ export default {
   .singersList {
     position: absolute;
     top: 170px;
-    bottom: 0;
+    bottom: 67.19px;
     width: 100%;
     overflow: hidden;
     // list为子容器 其高度计算应包括所有数据

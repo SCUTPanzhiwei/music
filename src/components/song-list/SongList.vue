@@ -8,7 +8,12 @@
         <h3>播放全部</h3>
         <p>(共{{ songsTotalNum }}首)</p>
       </li>
-      <li class="item" v-for="(song, index) in songs" :key="song.id" @click="selectItem(song,index)">
+      <li
+        class="item"
+        v-for="(song, index) in songs"
+        :key="song.id"
+        @click="selectItem(song, index)"
+      >
         <div class="content-left">{{ index + 1 }}</div>
         <div class="content-right">
           <h2 class="song-name">{{ song.songName }}</h2>
@@ -33,15 +38,15 @@ export default {
       default: [],
     },
   },
-  methods:{
+  methods: {
     // 点击歌曲时向外触发事件，由父组件进行处理
-    selectItem(song,index){
-      this.$emit('select',song,index)
+    selectItem(song, index) {
+      this.$emit("select", song, index);
     },
-    selectAllItem(songs){
-      this.$emit('selectAll',songs)
-    }
-  }
+    selectAllItem(songs) {
+      this.$emit("selectAll", songs);
+    },
+  },
 };
 </script>
 
@@ -86,6 +91,10 @@ export default {
       .song-name {
         font-size: 16px;
         margin-bottom: 5px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
       }
       .song-desc {
         /* 长度太长时省略 可以用函数 */
@@ -96,7 +105,7 @@ export default {
           white-space: nowrap;
           text-overflow: ellipsis;
           color: #bba8a8;
-          display:block;
+          display: block;
         }
       }
     }

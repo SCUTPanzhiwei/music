@@ -99,8 +99,8 @@ export default {
   position: absolute;
   top: 80px;
   left: 0;
+  bottom: 67px;
   width: 100%;
-  height: 590px;
   overflow: hidden;
   .loading-container {
     position: absolute;
