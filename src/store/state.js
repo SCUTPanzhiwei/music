@@ -14,7 +14,7 @@ const state = {
   fullScreen: false,
   playList:[],
   sequenceList:[], 
-  playMode: playMode,
+  playMode: playMode.sequence,
   currentIndex: -1,
 }
 export default state

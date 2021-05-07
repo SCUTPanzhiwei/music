@@ -24,7 +24,12 @@
       class="song-list"
       ref="list"
     >
-      <song-list :songs="songs" :songsTotalNum="songsTotalNum" @select="selectItem"></song-list>
+      <song-list
+        :songs="songs"
+        :songsTotalNum="songsTotalNum"
+        @select="selectItem"
+        @selectAll="selectAllItem"
+      ></song-list>
       <div class="loading-container" v-show="!songs.length">
         <Loading></Loading>
       </div>
@@ -36,8 +41,9 @@
 import Scroll from "../scroll/Scroll.vue";
 import SongList from "../song-list/SongList.vue";
 import { prefixStyle } from "../../common/js/dom";
-import Loading from '../loading/Loading'
-import {mapActions} from 'vuex'
+import Loading from "../loading/Loading";
+import { mapActions } from "vuex";
+import { playMode } from "../../common/js/config";
 
 const transform = prefixStyle(`transform`);
 const backdrop = prefixStyle(`backdrop`);
@@ -86,16 +92,22 @@ export default {
   },
   methods: {
     // 处理子组件选中一首歌曲后的事件处理函数，对vuex中相关状态进行改变，并且传入参数
-    selectItem(song,index) {
+    selectAllItem(song, index) {
       this.selectPlay({
-        list:this.songs,
-        index:index 
-      })
+        list: this.songs,
+        index: 0,
+      });
+      this.$store.commit('SET_PLAY_MODE',playMode.sequence)
     },
-    ...mapActions([
-      'selectPlay'
-    ]),
-    
+
+    selectItem(song, index) {
+      this.selectPlay({
+        list: this.songs,
+        index: index,
+      });
+    },
+    ...mapActions(["selectPlay"]),
+
     // 监听滚动
     scroll(pos) {
       this.scrollY = pos.y;
@@ -138,7 +150,7 @@ export default {
       this.$refs.bgImage.style.zIndex = zIndex;
       this.$refs.bgImage.style["transform"] = `scale(${scale})`;
       this.$refs.bgImage.style[transform] = `scale(${scale})`;
-      this.$refs.button.style['opacity'] = `${opacity}`;
+      this.$refs.button.style["opacity"] = `${opacity}`;
     },
   },
 };

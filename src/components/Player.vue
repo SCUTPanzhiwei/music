@@ -35,7 +35,11 @@
             <span class="time time-l">{{ formatSecond(currentTime) }}</span>
             <div class="progress-bar-wrapper">
               <!--进度条组件  -->
-              <play-bar :percent="progress" @progressChange="progressChange" @click="progressChange">
+              <play-bar
+                :percent="progress"
+                @progressChange="progressChange"
+                @click="progressChange"
+              >
               </play-bar>
             </div>
             <span class="time time-r">{{
@@ -44,8 +48,8 @@
           </div>
           <div class="operators"></div>
           <div class="icon-wrapper">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-xunhuan"></use>
+            <svg class="icon" aria-hidden="true" @click="changePlayMode">
+              <use :xlink:href="`#${IconMode}`"></use>
             </svg>
             <svg class="icon icon-pre" aria-hidden="true" @click="pre">
               <use xlink:href="#icon-shangyiqu"></use>
@@ -68,18 +72,24 @@
     <transition class="mini">
       <div class="micro-player" v-show="!fullScreen" @click="showNormalPlayer">
         <div class="album-img-mini">
-          <img 
-          v-if="playList.length==0"
-          src="https://imgsrc.baidu.com/forum/pic/item/bba1cd11728b471035abf958c9cec3fdfd032399.jpg"/>
-          <img :src="currentSong.img" :class="rotate"  v-else/>
+          <img
+            v-if="playList.length == 0"
+            src="https://imgsrc.baidu.com/forum/pic/item/bba1cd11728b471035abf958c9cec3fdfd032399.jpg"
+          />
+          <img :src="currentSong.img" :class="rotate" v-else />
         </div>
         <div class="play-song-mini">
-          <span class="song-name" v-html="playList.length?currentSong.songName:'欢迎使用网易云音乐'"></span>
+          <span
+            class="song-name"
+            v-html="
+              playList.length ? currentSong.songName : '欢迎使用网易云音乐'
+            "
+          ></span>
           <span class="song-singer" v-html="currentSong.singer"></span>
         </div>
         <div class="play-icon-mini">
           <div class="icon-play" @click.stop="togglePlaying">
-            <svg class="icon" aria-hidden="true">
+            <svg class="icon" aria-hidden="true" id="play">
               <use :xlink:href="`#${playIcon}`"></use>
             </svg>
           </div>
@@ -95,6 +105,7 @@
       @canplay="ready"
       @error="error"
       @timeupdate="updateTime"
+      @ended="end"
     ></audio>
   </div>
 </template>
@@ -102,6 +113,8 @@
 <script>
 import { mapGetters, mapMutations } from "vuex";
 import PlayBar from "./PlayBar.vue";
+import { playMode } from "../common/js/config";
+import { shuffle } from "../common/js/util";
 export default {
   data() {
     return {
@@ -114,9 +127,13 @@ export default {
   },
   watch: {
     // 监听currentSong
-    currentSong() {
+    currentSong(newSong,oldSong) {
+      if(newSong.id === oldSong.id){
+        return
+      }
       this.$nextTick(() => {
         this.$refs.audio.play();
+        this.currentSong.getLyric()
       });
     },
     playingState(newPlaying) {
@@ -138,10 +155,23 @@ export default {
       "currentSong",
       "playingState",
       "currentIndex",
+      "playMode",
+      "sequenceList",
     ]),
+
+    // 
     // 计算得到播放进度，并传值给子组件
     progress() {
       return this.currentTime / (this.currentSong.duration / 1000);
+    },
+    IconMode() {
+      if (this.playMode === playMode.sequence) {
+        return "icon-xunhuan";
+      } else if (this.playMode === playMode.loop) {
+        return "icon-danquxunhuan";
+      } else {
+        return "icon-ziyuan";
+      }
     },
     // 动态添加属性
     playIcon() {
@@ -153,6 +183,39 @@ export default {
     },
   },
   methods: {
+    // 播放结束 切换到下一曲
+    end(){
+      if(this.playMode==playMode.loop){
+        this.loop()
+      }else {
+        this.next()
+      }
+    },
+    loop(){
+      //实现单曲循环
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+    },
+    // 改变播放模式
+    changePlayMode() {
+      const mode = (this.playMode + 1) % 3;
+      this.setPlayMode(mode);
+      let list = null;
+      if (mode === playMode.random) {
+        // 随机播放 进行洗牌
+        list = shuffle(this.sequenceList);
+      } else {
+        list = this.sequenceList;
+      }
+      this.resetCurrentIndex(list)
+      this.setPlayList(list);
+    },
+    resetCurrentIndex(list){
+      let index = list.findIndex((item)=>{
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
+    },
     // 响应播放器进度条拖动
     progressChange(percent) {
       // 设置audio的当前播放时间
@@ -167,6 +230,7 @@ export default {
     updateTime(e) {
       this.currentTime = e.target.currentTime;
     },
+    // 时间戳转化
     formatSecond(interval) {
       interval = interval | 0;
       const minute = (interval / 60) | 0;
@@ -179,6 +243,7 @@ export default {
       const second = interval % 60;
       return `${this._pad(minute)}:${this._pad(second)}`;
     },
+    // 该函数用于时间补零
     _pad(num, n = 2) {
       let len = num.toString().length;
       while (len < n) {
@@ -190,6 +255,7 @@ export default {
     error() {
       this.songReady = true;
       alert("播放错误");
+      this.next()
     },
     ready() {
       this.songReady = true;
@@ -240,6 +306,8 @@ export default {
       setFullScreen: "SET_FULL_SCREEN", //将 setFullScreen映射为SET_PLAY_MODE
       setPlayingState: "SET_PLAYING_STATE",
       setCurrentIndex: "SET_CURRENT_INDEX",
+      setPlayMode: "SET_PLAY_MODE",
+      setPlayList: "SET_PLAY_LIST",
     }),
   },
 };
@@ -447,6 +515,10 @@ export default {
     }
     .icon {
       font-size: 28px;
+    }
+    #play {
+      border: 4px solid rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
     }
   }
 }
