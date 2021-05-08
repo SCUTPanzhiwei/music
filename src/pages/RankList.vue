@@ -1,42 +1,39 @@
 <template>
   <transition class="recommendList">
-  <music-list :title="title" :bgImage="bgImage" :songs="songs"></music-list>
+    <music-list :title="title" :bgImage="bgImage" :songs="songs"></music-list>
   </transition>
 </template>
 
 <script>
-import MusicList from './music-list/MusicList.vue'
+import MusicList from "../components/music-list/MusicList";
 import { createSong } from "../common/js/song";
 export default {
   components: { MusicList },
-  data(){
+  data() {
     return {
-      songs:[],
-      bgImage: '',
-      title: '',
-    }
+      songs: [],
+      bgImage: "",
+      title: "",
+    };
   },
-  computed: {
-
+  computed: {},
+  created() {
+    this._getSingerSong();
   },
-  created(){
-    this._getSingerSong()
-  },
-  methods:{
+  methods: {
     // 获取歌曲数据
     _getSingerSong() {
       let params = this.$route.params;
       this.axios
         .get("/playlist/detail", {
-          params:params
+          params: params,
         })
         .then((res) => {
-          this.bgImage = res.playlist.coverImgUrl
-          this.title = res.playlist.name
-          this.songs= this._normalizeSongs(res.playlist.tracks)
-          console.log(this.songs)         
+          this.bgImage = res.playlist.coverImgUrl;
+          this.title = res.playlist.name;
+          this.songs = this._normalizeSongs(res.playlist.tracks);
+          console.log(this.songs);
         });
-      
     },
     // 对歌曲数据进行处理，并返回 类型数组
     _normalizeSongs(recommendSongs) {
@@ -47,8 +44,8 @@ export default {
       });
       return ret;
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -59,10 +56,12 @@ export default {
   bottom: 0;
   top: 0;
 }
-  .slide-enter-active, .slider-leave-active {
-    transition: all 0.3s;
-  }
-  .slide-enter, .slider-leave-to {
-    transform: translate3d(100%,0,0)
-  }
+.slide-enter-active,
+.slider-leave-active {
+  transition: all 1s;
+}
+.slide-enter,
+.slider-leave-to {
+  transform: translate3d(100%, 0, 0);
+}
 </style>

@@ -54,6 +54,7 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="current-lyric" v-if="currentLyric.length>0&&showCdFlag">{{currentLyric[currentLineNum].content}}</div>
           <!-- 进度条与时间 -->
           <div class="progress-wrapper">
             <span class="time time-l">{{ formatSecond(currentTime) }}</span>
@@ -106,7 +107,7 @@
           <span
             class="song-name"
             v-html="
-              playList.length ? currentSong.songName : '欢迎使用网易云音乐'
+              playList.length ? currentSong.songName : '欢迎使用音乐云'
             "
           ></span>
           <span class="song-singer" v-html="currentSong.singer"></span>
@@ -430,7 +431,7 @@ export default {
           font-size: 14px;
           height: 20px;
           line-height: 20px;
-          color: #e63131;
+          color: rgb(224, 98, 13);
         }
       }
     }
@@ -499,6 +500,17 @@ export default {
       width: 100%;
       bottom: 0;
       top: 472px;
+      .current-lyric {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        height: 30px;
+        font-size: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #f1f1f1;
+        text-align: center;
+      }
       .progress-wrapper {
         position: absolute;
         top: 100px;

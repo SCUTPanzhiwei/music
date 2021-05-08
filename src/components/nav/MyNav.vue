@@ -7,7 +7,7 @@
         </svg>
       </div>
       <div class="middle"><span>云音乐</span></div>
-      <div class="right">
+      <div class="right" @click="search">
         <svg aria-hidden="true" class="icon">
           <use xlink:href="#icon-sousuo"></use>
         </svg>
@@ -18,6 +18,11 @@
 <script>
 export default {
   name: "my-nav",
+  methods:{
+    search(){
+      this.$router.push('/search')
+    }
+  }
 };
 </script>
 

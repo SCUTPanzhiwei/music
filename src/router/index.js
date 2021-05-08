@@ -1,10 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Recommend from '@/components/Recommend.vue'
-import RecommendList from '@/components/RecommendList.vue'
+import RecommendList from '@/pages/RecommendList.vue'
 import Singer from '@/components/Singer.vue'
 import SingerDetail from '@/pages/SingerDetail.vue'
 import Rank from '@/components/Rank.vue'
+import RankList from '@/pages/RankList.vue'
+import Search from '@/pages/Search.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -39,10 +41,21 @@ const routes = [
     component: RecommendList
   },
   {
+    name: 'rankList',
+    path: '/rank/rankList/:id',
+    component: RankList
+  },
+  {
     // 歌手详情页面
     name: 'singerDetail',
     path: '/singer/singerDetail/:id',
     component: SingerDetail
+  },
+  {
+    // 
+    name: 'search',
+    path: '/search',
+    component: Search
   }
 ]
 
