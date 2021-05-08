@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {handleLrc} from './lrc.js'
 export default class Song {
   constructor({ id, singer, songName, album, duration, img, url, mv }) {
     this.id = id //歌曲id
@@ -10,17 +11,21 @@ export default class Song {
     this.url = url // 
     this.mv = mv //
   }
-  // id为对象 {id: xxx}
   getLyric() {
     return axios.get('/lyric', {
       params: {
-        id: this.id
+        id: this.id // 参数为歌词id
       }
     }).then((res) => {
-      // 对歌词进行处理
-      let lyric = res.lrc.lyric
-      
-      console.log(res.lrc.lyric)
+      // 如果没有歌词 返回一个空数组
+      if(res.nolyric===true){
+        return Promise.resolve([])
+      }
+      // 有歌词数据 需要进一步对字符串表示形式的歌词数据进行处理
+      const lyric = res.lrc.lyric
+      // 拿到歌词信息后将其保存      
+      const handleResult = handleLrc(lyric)
+      return Promise.resolve(handleResult)
     })
   }
 }
@@ -36,7 +41,7 @@ export function createSong(hotSong) {
     url: `http://music.163.com/song/media/outer/url?id=${hotSong.id}.mp3` // 从这个地址去抓数据
   })
 }
-// 处理作者信息
+// 处理信息
 function filterSinger(singer) {
   let ret = []
   if (!singer) {

@@ -23,10 +23,34 @@
           </div>
         </div>
         <div class="middle">
-          <div class="cd-wrapper">
-            <div class="cd" :class="rotate">
-              <img :src="currentSong.img" alt="" />
+          <div
+            class="show-cd"
+            v-show="showCdFlag"
+            @click="showCdFlag = !showCdFlag"
+          >
+            <div class="cd-wrapper">
+              <div class="cd" :class="rotate">
+                <img :src="currentSong.img" alt="" />
+              </div>
             </div>
+          </div>
+          <div
+            class="show-lyric"
+            v-show="!showCdFlag"
+            @click="showCdFlag = !showCdFlag"
+          >
+            <Scroll ref="scroll" class="wrapper" :data="currentLyric">
+              <ul v-if="currentLyric">
+                <li
+                  ref="lyricLine"
+                  v-for="(item, index) in currentLyric"
+                  :key="index"
+                  :class="{ highlight: currentLineNum == index }"
+                >
+                  {{ item.content }}
+                </li>
+              </ul>
+            </Scroll>
           </div>
         </div>
         <div class="bottom">
@@ -115,25 +139,34 @@ import { mapGetters, mapMutations } from "vuex";
 import PlayBar from "./PlayBar.vue";
 import { playMode } from "../common/js/config";
 import { shuffle } from "../common/js/util";
+import Scroll from "./scroll/Scroll";
 export default {
   data() {
     return {
       songReady: false, // audio资源可用性标志位
-      currentTime: 0,
+      currentTime: 0, // 歌曲时间信息
+      currentLyric: [], // 歌词信息
+      showCdFlag: true, //显示cd动画还是歌词
+      currentLineNum: 0, //当前高亮歌词索引
+      openPlayList:false // 显示当前播放列表
     };
   },
   components: {
     PlayBar,
+    Scroll,
   },
   watch: {
     // 监听currentSong
-    currentSong(newSong,oldSong) {
-      if(newSong.id === oldSong.id){
-        return
+    currentSong(newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return;
       }
       this.$nextTick(() => {
         this.$refs.audio.play();
-        this.currentSong.getLyric()
+        // 获取歌词信息
+        this.currentSong.getLyric().then((res) => {
+          this.currentLyric = res;
+        });
       });
     },
     playingState(newPlaying) {
@@ -159,7 +192,7 @@ export default {
       "sequenceList",
     ]),
 
-    // 
+    //
     // 计算得到播放进度，并传值给子组件
     progress() {
       return this.currentTime / (this.currentSong.duration / 1000);
@@ -184,17 +217,17 @@ export default {
   },
   methods: {
     // 播放结束 切换到下一曲
-    end(){
-      if(this.playMode==playMode.loop){
-        this.loop()
-      }else {
-        this.next()
+    end() {
+      if (this.playMode == playMode.loop) {
+        this.loop();
+      } else {
+        this.next();
       }
     },
-    loop(){
-      //实现单曲循环
-      this.$refs.audio.currentTime = 0
-      this.$refs.audio.play()
+    //实现单曲循环
+    loop() {
+      this.$refs.audio.currentTime = 0;
+      this.$refs.audio.play();
     },
     // 改变播放模式
     changePlayMode() {
@@ -207,14 +240,15 @@ export default {
       } else {
         list = this.sequenceList;
       }
-      this.resetCurrentIndex(list)
+      this.resetCurrentIndex(list);
       this.setPlayList(list);
     },
-    resetCurrentIndex(list){
-      let index = list.findIndex((item)=>{
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)
+    // 更改列表后寻找当前播放歌曲索引
+    resetCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id;
+      });
+      this.setCurrentIndex(index);
     },
     // 响应播放器进度条拖动
     progressChange(percent) {
@@ -229,6 +263,32 @@ export default {
     // 获取当前播放时间，利用audio的派发函数实现，得到时间戳形式的时间数据
     updateTime(e) {
       this.currentTime = e.target.currentTime;
+      this.currentLyricLength = this.currentLyric.length;
+      if (this.currentLyricLength == 0) {
+        return;
+      }
+      /* 
+      当改变currentTime时 去寻找所对应的currentNum 该currentNum所对应的currentLyric.time应满足条件
+      this.currentLyric[i].time=<currentTime 且是最大的时间，想到去用二分法去寻找
+      */
+      let l=0;
+      let r=this.currentLyricLength-1
+      while(l<r){
+        // middle表示索引
+        let middle = 1+Math.floor((l+r)/2)
+        if(this.currentLyric[middle].time>this.currentTime){
+          r=middle-1 // middle取不到
+        } else {
+          l = middle
+        }
+      }
+      this.currentLineNum = l
+      if(this.currentLineNum>5){
+        let lineEl = this.$refs.lyricLine[this.currentLineNum-5]
+        this.$refs.scroll.scrollToElement(lineEl,1000)
+      } else {
+        this.$refs.scroll.scrollTo(0,0,1000)
+      }
     },
     // 时间戳转化
     formatSecond(interval) {
@@ -255,7 +315,7 @@ export default {
     error() {
       this.songReady = true;
       alert("播放错误");
-      this.next()
+      this.next();
     },
     ready() {
       this.songReady = true;
@@ -363,12 +423,14 @@ export default {
           height: 25px;
           line-height: 25px;
           color: #f1f1f1;
+          white-space: nowrap;
+          overflow: hidden;
         }
         .songAuthor {
           font-size: 14px;
           height: 20px;
           line-height: 20px;
-          color: #080202;
+          color: #e63131;
         }
       }
     }
@@ -400,6 +462,34 @@ export default {
             width: 100%;
             height: 100%;
             border-radius: 50%;
+          }
+        }
+      }
+      .show-lyric {
+        position: absolute;
+        height: 100%;
+        left: 0;
+        right: 0;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 16px;
+        overflow: hidden;
+        .wrapper {
+          position: absolute;
+          height: 100%;
+          left: 0;
+          right: 0;
+        }
+        ul {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          li {
+            text-align: center;
+            height: 36px;
+            line-height: 18px;
+            &.highlight {
+              color: #f1f1f1;
+            }
           }
         }
       }
@@ -469,7 +559,7 @@ export default {
     right: 0;
     display: flex;
     align-items: center;
-    background: white;
+    background: pink;
     .album-img-mini {
       flex: 1.2;
       padding-left: 2px;
@@ -516,10 +606,7 @@ export default {
     .icon {
       font-size: 28px;
     }
-    #play {
-      border: 4px solid rgba(0, 0, 0, 0.3);
-      border-radius: 50%;
-    }
+
   }
 }
 </style>

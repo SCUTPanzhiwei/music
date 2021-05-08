@@ -55,6 +55,11 @@ export default {
 <style lang="scss" scoped>
 @import "@/assets/styles/config.scss";
 .home {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   header {
     position: fixed;
     top: 0;

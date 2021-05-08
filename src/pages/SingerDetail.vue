@@ -57,7 +57,6 @@ export default {
         })
         .then((res) => {
           this.artist = this._normalizeSinger(res.artist);
-          console.log(this.artist)
           this.songs = this._normalizeSongs(res.hotSongs);
         });
     },

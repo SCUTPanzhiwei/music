@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="rec-wrapper">
     <Scroll ref="scroll" class="wrapper" :data="recommendList">
       <div class="recommend">
         <div v-if="banners.length" class="banner">
@@ -95,6 +95,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.router {
+  z-index: 99;
+}
 .wrapper {
   position: absolute;
   top: 80px;

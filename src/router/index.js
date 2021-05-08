@@ -13,12 +13,16 @@ const routes = [
     path: '/',
     component: () => import('@/pages/home/Home.vue'),
     redirect: '/recommend',
-    children:[
+    children: [
       {
         path: '/recommend',
-        component: Recommend
+        component: Recommend,
+        children: [
+          
+        ]
+
       },
-      { 
+      {
         name: 'singer',
         path: '/singer',
         component: Singer
@@ -29,15 +33,15 @@ const routes = [
       },
     ]
   },
-  { 
-    name:'recommendList',
-    path:'/recommend/recommendList/:id',
+  {
+    name: 'recommendList',
+    path: '/recommend/recommendList/:id',
     component: RecommendList
   },
-  { 
+  {
     // 歌手详情页面
-    name:'singerDetail',
-    path:'/singer/singerDetail/:id',
+    name: 'singerDetail',
+    path: '/singer/singerDetail/:id',
     component: SingerDetail
   }
 ]
