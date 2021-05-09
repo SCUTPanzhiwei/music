@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {handleLrc} from './lrc.js'
+import { handleLrc } from './lrc.js'
 export default class Song {
   constructor({ id, singer, songName, album, duration, img, url, mv }) {
     this.id = id //歌曲id
@@ -18,7 +18,7 @@ export default class Song {
       }
     }).then((res) => {
       // 如果没有歌词 返回一个空数组
-      if(res.nolyric===true){
+      if (res.nolyric === true) {
         return Promise.resolve([])
       }
       // 有歌词数据 需要进一步对字符串表示形式的歌词数据进行处理
@@ -32,12 +32,12 @@ export default class Song {
 
 export function createSong(hotSong) {
   return new Song({
-    singer: filterSinger(hotSong.ar),
+    singer: hotSong.ar ? filterSinger(hotSong.ar) :filterSinger(hotSong.artists),
     songName: hotSong.name,
     id: hotSong.id,
-    album: hotSong.al.name,
-    duration: hotSong.dt, // 毫秒
-    img: hotSong.al.picUrl,
+    album: hotSong.al ? hotSong.al.name : hotSong.album ? hotSong.album.name : '',
+    duration: hotSong.dt ? hotSong.dt : hotSong.duration, // 毫秒
+    img: hotSong.al ? hotSong.al.picUrl:'',
     url: `http://music.163.com/song/media/outer/url?id=${hotSong.id}.mp3` // 从这个地址去抓数据
   })
 }
@@ -52,3 +52,4 @@ function filterSinger(singer) {
   })
   return ret.join('/')
 }
+
