@@ -1,19 +1,67 @@
 import * as types from './mutation-types'
 
-export const selectPlay = function({commit,state},{list,index}) {
+
+function findIndex(list, song) {
+  return list.findIndex((item) => {
+    return item.id === song.id
+  })
+}
+export const selectPlay = function ({ commit, state }, { list, index }) {
   // commit(string,传参) string指向的是对应的mutation
-  commit(types.SET_PLAY_LIST,list)
-  commit(types.SET_SEQUENCE_LIST,list)
-  commit(types.SET_CURRENT_INDEX,index)
-  commit(types.SET_FULL_SCREEN,false)
-  commit(types.SET_PLAYING_STATE,true)
+  commit(types.SET_PLAY_LIST, list)
+  commit(types.SET_SEQUENCE_LIST, list)
+  commit(types.SET_CURRENT_INDEX, index)
+  commit(types.SET_FULL_SCREEN, false)
+  commit(types.SET_PLAYING_STATE, true)
 }
 
 // 单首歌曲加入到列表中 参数为song
-export const addPlay = function({commit,state},{song}) {
+
+
+/* 
+  单首歌曲插入逻辑 如果当前列表内有这首歌 将其原索引删除 
+  将其加入到下载的播放列表中
+
+*/
+export const addPlay = function ({ commit, state }, { song }) {
   // commit(string,传参) string指向的是对应的mutation
-  commit(types.ADD_PLAY_LIST,song)
-  commit(types.SET_CURRENT_INDEX,0)
-  commit(types.SET_FULL_SCREEN,false)
-  commit(types.SET_PLAYING_STATE,true)
+  let playList = state.playList.slice()
+  let sequenceList = state.sequenceList.slice()
+  let currentIndex = state.currentIndex
+  // 记录当前歌曲
+  let currentSong = playList[currentIndex]
+  // 查找当前列表中是否有待插入的歌曲
+  let fIndex = findIndex(playList, song)
+  // 插入歌曲，当前索引加1
+  currentIndex++
+  // 插入歌曲到当前索引位置
+  playList.splice(currentIndex, 0, song)
+  // 存在该歌曲
+  if (fIndex > -1) {
+    // 当前插入的序号大于列表中序号
+    if (currentIndex > fIndex) {
+      playList.splice(fIndex, 1)
+      currentIndex--
+    } else {
+      playList.splice(fIndex + 1, 1)
+    }
+  }
+
+  let currentSIndex = findIndex(sequenceList, currentSong)
+  let fsIndex = findIndex(sequenceList, song)
+  sequenceList.splice(currentSIndex, 0, song)
+  if (fsIndex > -1) {
+    // 当前插入的序号大于列表中序号
+    if (currentSIndex > fsIndex) {
+      sequenceList.splice(fsIndex, 1)
+      currentIndex--
+    } else {
+      sequenceList.splice(fsIndex + 1, 1)
+    }
+  }
+  commit(types.SET_PLAY_LIST, playList)
+  commit(types.SET_SEQUENCE_LIST, sequenceList)
+  commit(types.SET_CURRENT_INDEX, currentIndex)
+  commit(types.SET_FULL_SCREEN, false)
+  commit(types.SET_PLAYING_STATE, true)
 }

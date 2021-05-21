@@ -11,3 +11,17 @@ export function shuffle(arr) {
   }
   return _arr
 }
+
+/* 节流函数 */
+export function debounce(func,delay) {
+  let timer = null
+  return function(...args) {
+    let self = this
+    if(timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(()=>{
+      func.call(self,...args)
+    },delay)
+  }
+}

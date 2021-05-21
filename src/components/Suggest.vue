@@ -36,6 +36,9 @@
         </div>
       </li>
     </ul>
+    <div class="no-result-wrapper" v-show="showNoResult">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
+    </div>
   </div>
 </template>
 
@@ -45,7 +48,9 @@ const SINGERDETAIL = "/singer/singerDetail/";
 const RECOMMENDLIST = "/recommend/recommendList/";
 import { createSong } from "../common/js/song";
 import {mapActions} from 'vuex'
+import NoResult from './no-result/NoResult.vue';
 export default {
+  components: { NoResult },
   props: {
     // 依赖于检索词
     searchWords: {
@@ -58,6 +63,7 @@ export default {
       playlists: [], //歌单
       songs: [], // 歌曲
       artists: [], //歌手
+      showNoResult:false //是否显示无搜索结果
     };
   },
   watch: {
@@ -76,8 +82,8 @@ export default {
         if (this.songs.length > 0) {
           this.songs = this._normalizeSongs(this.songs);
         }
-      });
-      
+        this.showNoResult = (JSON.stringify(res.result)==='{}') ? true : false
+      });      
     },
     _normalizeSongs(songs) {
       let ret = [];

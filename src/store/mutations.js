@@ -24,7 +24,7 @@ const mutations = {
   [types.ADD_PLAY_LIST](state,song) {
     // 将当前歌曲插入到播放列表中
     state.playList.unshift(song)
-    state.playList.unshift(song)
+    state.sequenceList.unshift(song)
   },
   // 设置顺序播放
   [types.SET_SEQUENCE_LIST](state, sequenceList) {

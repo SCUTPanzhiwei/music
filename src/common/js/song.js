@@ -37,7 +37,7 @@ export function createSong(hotSong) {
     id: hotSong.id,
     album: hotSong.al ? hotSong.al.name : hotSong.album ? hotSong.album.name : '',
     duration: hotSong.dt ? hotSong.dt : hotSong.duration, // 毫秒
-    img: hotSong.al ? hotSong.al.picUrl:'',
+    img: hotSong.al ? hotSong.al.picUrl:'https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg',
     url: `http://music.163.com/song/media/outer/url?id=${hotSong.id}.mp3` // 从这个地址去抓数据
   })
 }

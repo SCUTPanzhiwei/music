@@ -379,6 +379,9 @@ export default {
   0% {
     transform: rotate(0);
   }
+  50% {
+    transform: rotate(180deg);
+  }
   100% {
     transform: rotate(360deg);
   }
@@ -454,14 +457,13 @@ export default {
           // 动态添加旋转效果
           &.play {
             animation: rotate 20s linear infinite;
-            animation-fill-mode: forwards;
           }
           &.pause {
             animation-play-state: paused;
           }
           img {
-            width: 100%;
-            height: 100%;
+            width: 240px;
+            height: 240px;
             border-radius: 50%;
           }
         }
@@ -571,7 +573,7 @@ export default {
     right: 0;
     display: flex;
     align-items: center;
-    background: pink;
+    background: white;
     .album-img-mini {
       flex: 1.2;
       padding-left: 2px;
@@ -583,8 +585,8 @@ export default {
           animation-play-state: paused;
         }
         border-radius: 50%;
-        width: 100%;
-        height: 100%;
+        width: 60px;
+        height: 60px;
       }
     }
     .play-song-mini {

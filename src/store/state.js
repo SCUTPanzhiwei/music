@@ -7,6 +7,7 @@ import {playMode} from '../common/js/config'
 5、顺序播放列表
 6、播放模式
 7、当前播放index
+8、搜索历史
 */
 const state = {
   singer:{}, 
@@ -16,5 +17,6 @@ const state = {
   sequenceList:[], 
   playMode: playMode.sequence,
   currentIndex: -1,
+  searchHistory:[]
 }
 export default state
