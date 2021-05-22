@@ -39,5 +39,10 @@ const mutations = {
     state.currentIndex = currentIndex
   },
 
+  // 搜索历史
+  [types.SET_SEARCH_HISTORY](state, history) {
+    state.searchHistory = history
+  },
+
 }
 export default mutations

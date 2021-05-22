@@ -1,5 +1,5 @@
 import * as types from './mutation-types'
-
+import {saveSearch,deleteSearch} from '../common/js/localCache'
 
 function findIndex(list, song) {
   return list.findIndex((item) => {
@@ -64,4 +64,16 @@ export const addPlay = function ({ commit, state }, { song }) {
   commit(types.SET_CURRENT_INDEX, currentIndex)
   commit(types.SET_FULL_SCREEN, false)
   commit(types.SET_PLAYING_STATE, true)
+}
+
+export const saveSearchHistory = function ({commit},query) {
+  commit(types.SET_SEARCH_HISTORY,saveSearch(query))
+}
+
+export const deleteSearchHistory = function ({commit},query) {
+  commit(types.SET_SEARCH_HISTORY,deleteSearch(query))
+}
+
+export const deleteAllSearchHistory = function ({commit}) {
+  commit(types.SET_SEARCH_HISTORY,[])
 }

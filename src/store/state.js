@@ -1,4 +1,5 @@
 import {playMode} from '../common/js/config'
+import {loadSearch} from '../common/js/localCache'
 /* 
 1、歌手信息
 2、播放器是否正在播放
@@ -17,6 +18,6 @@ const state = {
   sequenceList:[], 
   playMode: playMode.sequence,
   currentIndex: -1,
-  searchHistory:[]
+  searchHistory: loadSearch() // 初始化为本地存储
 }
 export default state

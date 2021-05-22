@@ -97,12 +97,15 @@ export default {
     // 前往歌手页面
     goToSingerPage(id) {
       this.$router.push(`${SINGERDETAIL}${id}`);
+      this.$emit('select') // 表明搜索结果生效，向外触发事件
     },
     goToRecommendPage(id) {
       this.$router.push(`${RECOMMENDLIST}${id}`)
+      this.$emit('select') 
     },
     addToPlayList(song) {
       this.addPlay({song: song});
+      this.$emit('select')
     },
     ...mapActions(["addPlay"]),
   },
@@ -118,6 +121,7 @@ export default {
   right: 0;
   overflow: hidden;
   background: #fff;
+  z-index: 88;
   .title {
     font-size: 18px;
   }

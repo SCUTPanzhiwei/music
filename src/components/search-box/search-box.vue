@@ -3,18 +3,19 @@
     <svg class="icon" aria-hidden="true" @click="$router.back()">
       <use xlink:href="#icon-return"></use>
     </svg>
-    <input type="text" :placeholder="placeholder" v-model="query" />
-    <svg class="icon" aria-hidden="true" @click="clear">
+    <div class="input">
+      <input type="text" :placeholder="placeholder" v-model="query" />
+    </div>
+    <svg class="icon" aria-hidden="true" @click="clear" v-show="query.length">
       <use xlink:href="#icon-shanchu"></use>
     </svg>
   </div>
 </template>
 
 <script>
-import { debounce } from '../../common/js/util'
+import { debounce } from "../../common/js/util";
 export default {
-  watch:{
-  },
+  watch: {},
   props: {
     placeholder: {
       type: String,
@@ -37,9 +38,12 @@ export default {
   created() {
     // this.$watch效果与watch中相同
     // 对输入搜索触发进行防抖
-    this.$watch('query',debounce((newQuery)=>{
-      this.$emit('query',newQuery)
-    },500))
+    this.$watch(
+      "query",
+      debounce((newQuery) => {
+        this.$emit("query", newQuery);
+      }, 500)
+    );
   },
 };
 </script>
@@ -55,12 +59,16 @@ export default {
     font-size: 18px;
     flex: 1;
   }
-  input {
+  .input {
     flex: 6;
-    box-sizing: border-box;
-    height: 30px;
-    padding: 5px;
-    font-size: 18px;
+    margin-right: 10px;
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      height: 30px;
+      padding: 10px;
+      font-size: 18px;
+    }
   }
 }
 </style>
