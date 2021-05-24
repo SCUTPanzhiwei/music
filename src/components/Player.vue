@@ -87,7 +87,7 @@
             <svg class="icon" aria-hidden="true" @click="next">
               <use xlink:href="#icon-xiayiqu" class="icon-next"></use>
             </svg>
-            <svg class="icon" aria-hidden="true">
+            <svg class="icon" aria-hidden="true" @click="showPlayList">
               <use xlink:href="#icon-yinleliebiao-"></use>
             </svg>
           </div>
@@ -118,12 +118,13 @@
               <use :xlink:href="`#${playIcon}`"></use>
             </svg>
           </div>
-          <svg class="icon" aria-hidden="true">
+          <svg class="icon" aria-hidden="true" @click.stop="showPlayList">
             <use xlink:href="#icon-yinleliebiao-"></use>
           </svg>
         </div>
       </div>
     </transition>
+    <play-list ref="playList"></play-list>
     <audio
       :src="currentSong.url"
       ref="audio"
@@ -141,6 +142,7 @@ import PlayBar from "./PlayBar.vue";
 import { playMode } from "../common/js/config";
 import { shuffle } from "../common/js/util";
 import Scroll from "./scroll/Scroll";
+import PlayList from './PlayList.vue';
 export default {
   data() {
     return {
@@ -155,10 +157,14 @@ export default {
   components: {
     PlayBar,
     Scroll,
+    PlayList,
   },
   watch: {
     // 监听currentSong
     currentSong(newSong, oldSong) {
+      if(!newSong.id) {
+        return
+      }
       if (newSong.id === oldSong.id) {
         return;
       }
@@ -217,6 +223,10 @@ export default {
     },
   },
   methods: {
+    showPlayList(){
+      this.$refs.playList.show()
+      console.log(1)
+    },
     // 播放结束 切换到下一曲
     end() {
       if (this.playMode == playMode.loop) {
