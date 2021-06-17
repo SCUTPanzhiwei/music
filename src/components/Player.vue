@@ -22,11 +22,14 @@
             <h2 class="songAuthor" v-html="currentSong.singer"></h2>
           </div>
         </div>
-        <div class="middle">
+        <div class="middle" v-finger:swipe="swipeHandler">
+          <!-- 显示cd组件 -->
+
           <div
             class="show-cd"
-            v-show="showCdFlag"
+            v-if="showCdFlag"
             @click="showCdFlag = !showCdFlag"
+            v-finger:long-tap="longTapHandler(currentSong.img)"
           >
             <div class="cd-wrapper">
               <div class="cd" :class="rotate">
@@ -34,12 +37,22 @@
               </div>
             </div>
           </div>
+
+          <!-- 歌词组件 -->
+
           <div
             class="show-lyric"
             v-show="!showCdFlag"
             @click="showCdFlag = !showCdFlag"
+            v-finger:touch-move="touchMoveHandler"
+            v-finger:touch-end="touchEndHandler"
           >
-            <Scroll ref="scroll" class="wrapper" :data="currentLyric">
+            <Scroll
+              ref="scroll"
+              class="wrapper"
+              :data="currentLyric"
+              :probeType="1"
+            >
               <ul v-if="currentLyric">
                 <li
                   ref="lyricLine"
@@ -53,8 +66,15 @@
             </Scroll>
           </div>
         </div>
+
+        <!-- 下方 进度条及按钮模块 -->
         <div class="bottom">
-          <div class="current-lyric" v-if="currentLyric.length>0&&showCdFlag">{{currentLyric[currentLineNum].content}}</div>
+          <div
+            class="current-lyric"
+            v-if="currentLyric.length > 0 && showCdFlag"
+          >
+            {{ currentLyric[currentLineNum].content }}
+          </div>
           <!-- 进度条与时间 -->
           <div class="progress-wrapper">
             <span class="time time-l">{{ formatSecond(currentTime) }}</span>
@@ -72,6 +92,8 @@
             }}</span>
           </div>
           <div class="operators"></div>
+
+          <!-- 播放、前进、后退、播放列表等 -->
           <div class="icon-wrapper">
             <svg class="icon" aria-hidden="true" @click="changePlayMode">
               <use :xlink:href="`#${IconMode}`"></use>
@@ -106,9 +128,7 @@
         <div class="play-song-mini">
           <span
             class="song-name"
-            v-html="
-              playList.length ? currentSong.songName : '欢迎使用音乐云'
-            "
+            v-html="playList.length ? currentSong.songName : '欢迎使用音乐云'"
           ></span>
           <span class="song-singer" v-html="currentSong.singer"></span>
         </div>
@@ -140,9 +160,9 @@
 import { mapGetters, mapMutations } from "vuex";
 import PlayBar from "./PlayBar.vue";
 import { playMode } from "../common/js/config";
-import { shuffle } from "../common/js/util";
+import { shuffle, debounce } from "../common/js/util";
 import Scroll from "./scroll/Scroll";
-import PlayList from './PlayList.vue';
+import PlayList from "./PlayList.vue";
 export default {
   data() {
     return {
@@ -151,7 +171,9 @@ export default {
       currentLyric: [], // 歌词信息
       showCdFlag: true, //显示cd动画还是歌词
       currentLineNum: 0, //当前高亮歌词索引
-      openPlayList:false // 显示当前播放列表
+      openPlayList: false, // 显示当前播放列表
+      autoScroll: true,
+      touchEnd: null,
     };
   },
   components: {
@@ -162,8 +184,8 @@ export default {
   watch: {
     // 监听currentSong
     currentSong(newSong, oldSong) {
-      if(!newSong.id) {
-        return
+      if (!newSong.id) {
+        return;
       }
       if (newSong.id === oldSong.id) {
         return;
@@ -223,9 +245,9 @@ export default {
     },
   },
   methods: {
-    showPlayList(){
-      this.$refs.playList.show()
-      console.log(1)
+    showPlayList() {
+      this.$refs.playList.show();
+      console.log(1);
     },
     // 播放结束 切换到下一曲
     end() {
@@ -271,7 +293,7 @@ export default {
         this.togglePlaying();
       }
     },
-    // 获取当前播放时间，利用audio的派发函数实现，得到时间戳形式的时间数据
+    // 获取当前播放时间，主要思想：利用audio的派发函数实现，以得到时间戳形式的时间数据
     updateTime(e) {
       this.currentTime = e.target.currentTime;
       this.currentLyricLength = this.currentLyric.length;
@@ -279,26 +301,32 @@ export default {
         return;
       }
       /* 
+      二分法查找对应歌词
       当改变currentTime时 去寻找所对应的currentNum 该currentNum所对应的currentLyric.time应满足条件
       this.currentLyric[i].time=<currentTime 且是最大的时间，想到去用二分法去寻找
       */
-      let l=0;
-      let r=this.currentLyricLength-1
-      while(l<r){
+      let l = 0;
+      let r = this.currentLyricLength - 1;
+      while (l < r) {
         // middle表示索引
-        let middle = 1+Math.floor((l+r)/2)
-        if(this.currentLyric[middle].time>this.currentTime){
-          r=middle-1 // middle取不到
+        let middle = 1 + Math.floor((l + r) / 2);
+        if (this.currentLyric[middle].time > this.currentTime) {
+          r = middle - 1; // middle取不到
         } else {
-          l = middle
+          l = middle;
         }
       }
-      this.currentLineNum = l
-      if(this.currentLineNum>5){
-        let lineEl = this.$refs.lyricLine[this.currentLineNum-5]
-        this.$refs.scroll.scrollToElement(lineEl,1000)
+      this.currentLineNum = l;
+      // 不触发自动滚动
+      if (this.autoScroll === false) {
+        return;
+      }
+      /* 自动触发滚动到当前歌词的事件，当并没有自行滚动时 */
+      if (this.currentLineNum > 5) {
+        let lineEl = this.$refs.lyricLine[this.currentLineNum - 5];
+        this.$refs.scroll.scrollToElement(lineEl, 1000);
       } else {
-        this.$refs.scroll.scrollTo(0,0,1000)
+        this.$refs.scroll.scrollTo(0, 0, 1000);
       }
     },
     // 时间戳转化
@@ -370,7 +398,6 @@ export default {
         return;
       }
       // 1、改变vuex中播放状态 2、监听状态的变化再改变播放器
-      console.log("点击");
       this.setPlayingState(!this.playingState);
     },
     ...mapMutations({
@@ -380,6 +407,41 @@ export default {
       setPlayMode: "SET_PLAY_MODE",
       setPlayList: "SET_PLAY_LIST",
     }),
+    touchMoveHandler() {
+      if (this.touchEnd) {
+        clearTimeout(this.touchEnd);
+      }
+      this.autoScroll = false;
+      console.log("pressmove");
+    },
+    touchEndHandler() {
+      this.touchEnd = setTimeout(() => {
+        this.autoScroll = true;
+      }, 2000);
+    },
+    // 长按图片封面 弹出图片页
+    longTapHandler(args) {
+      return () => {
+        console.log(args);
+      };
+    },
+    // 滑动处理
+    swipeHandler(e) {
+      let direction = e.direction
+      console.log(direction)
+      switch (direction) {
+        case 'Left':{
+          if(!this.showCdFlag) return
+          this.pre()
+          break
+        }
+        case 'Right': {
+          if(!this.showCdFlag) return
+          this.next()
+          break
+        }
+      }
+    },
   },
 };
 </script>
@@ -630,7 +692,6 @@ export default {
     .icon {
       font-size: 28px;
     }
-
   }
 }
 </style>

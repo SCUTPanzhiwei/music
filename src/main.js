@@ -9,7 +9,8 @@ import '@/assets/styles/screen.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios' // axios模块
 import VueLazyLoad from 'vue-lazyload'
-
+import AlloyFinger from 'alloyfinger'
+import AlloyFingerPlugin from 'alloyfinger/vue/alloy_finger_vue'
 
 // 对axios做规定
 axios.defaults.baseURL = '/api' // 采用代理的形式 api代表 localhost:3000
@@ -29,6 +30,9 @@ Vue.use(VueAxios, axios)
 // 懒加载使用
 Vue.use(VueLazyLoad,{
   loading: require('../public/loading-spin.svg')
+}),
+Vue.use(AlloyFingerPlugin,{
+  AlloyFinger
 })
 new Vue({
   router,
