@@ -24,6 +24,7 @@ export default {
       default: 0,
     },
   },
+  // 监听歌曲的进度
   watch: {
     percent(newPercent) {
       if (newPercent >= 0 && !this.touch.initiated) {

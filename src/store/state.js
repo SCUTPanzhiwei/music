@@ -18,6 +18,6 @@ const state = {
   sequenceList:[], 
   playMode: playMode.sequence,
   currentIndex: -1,
-  searchHistory: loadSearch() // 初始化为本地存储
+  searchHistory: loadSearch() // 初始化为localStorage的内容
 }
 export default state

@@ -329,7 +329,7 @@ export default {
         this.$refs.scroll.scrollTo(0, 0, 1000);
       }
     },
-    // 时间戳转化
+    // 对时间戳转化
     formatSecond(interval) {
       interval = interval | 0;
       const minute = (interval / 60) | 0;

@@ -7,6 +7,12 @@ import SingerDetail from '@/pages/SingerDetail.vue'
 import Rank from '@/components/Rank.vue'
 import RankList from '@/pages/RankList.vue'
 import Search from '@/pages/Search.vue'
+
+/* VueRouter是一个插件，内部做了什么： 
+1、实现并声明了两个全局注册的组件
+  router-link和router-view
+2、实现install： this.$router.push()
+*/
 Vue.use(VueRouter)
 
 const routes = [
@@ -59,6 +65,7 @@ const routes = [
   }
 ]
 
+/* 创建一个路由实例, 并导出*/
 const router = new VueRouter({
   routes
 })

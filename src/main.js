@@ -27,7 +27,7 @@ axios.interceptors.response.use((response) => {
 Vue.config.productionTip = false
 fastClick.attach(document.body)
 Vue.use(VueAxios, axios)
-// 懒加载使用
+// 懒加载
 Vue.use(VueLazyLoad,{
   loading: require('../public/loading-spin.svg')
 }),
